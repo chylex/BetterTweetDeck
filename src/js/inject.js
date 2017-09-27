@@ -513,8 +513,6 @@ $(document).one('dataColumnsLoaded', () => {
     }
   }
 
-  const noop = () => {};
-
   $('.js-column').each((i, el) => {
     let size = TD.storage.columnController.get($(el).data('column')).getMediaPreviewSize();
 
@@ -540,34 +538,6 @@ $(document).one('dataColumnsLoaded', () => {
   }
 
   switchThemeClass();
-
-  if (SETTINGS.two_eight_zero_chars) {
-    // Modded from of https://gist.github.com/Zemnmez/ffb5449d873d5407c7172534b762ae46/
-    TD.services.TwitterClient.prototype.makeTwitterCall = function makeTwitterCall(b, e, f, g, c, d, h) {
-      c = c || noop;
-      d = d || noop;
-
-      b = this.request(b, {
-        method: f,
-        params: Object.assign(e, {
-          weighted_character_count: true,
-        }),
-        processor: g,
-        feedType: h,
-      });
-
-      return b.addCallbacks((a) => {
-        c(a.data);
-      }, (a) => {
-        d(a.req, '', a.msg, a.req.errors);
-      });
-    };
-
-    window.twttrTxt = Object.assign({}, window.twttr.txt, {
-      isInvalidTweet: () => false,
-      getTweetLength: () => window.twttr.txt.getTweetLength.apply(this, arguments) - 140,
-    });
-  }
 });
 
 const closeCustomModal = () => {
@@ -578,6 +548,19 @@ const closeCustomModal = () => {
 $(document).keydown((ev) => {
   if ($('#open-modal [btd-custom-modal]').length && ev.keyCode === 27) {
     closeCustomModal();
+  }
+});
+
+let moreTweetsEnabled = false;
+
+$(document).on('uiComposeTweet', () => {
+  if (SETTINGS.two_eight_zero_chars && !moreTweetsEnabled) {
+    // From of https://gist.github.com/Zemnmez/ffb5449d873d5407c7172534b762ae46/
+    // eslint-disable-next-line
+    TD.services.TwitterClient.prototype.makeTwitterCall = function (b, e, f, g, c, d, h) { c = c || function () { }; d = d || function () { }; b = this.request(b, { method: f, params: Object.assign(e, { weighted_character_count: !0 }), processor: g, feedType: h }); return b.addCallbacks(function (a) { c(a.data) }, function (a) { d(a.req, "", a.msg, a.req.errors) }), b };
+    // eslint-disable-next-line
+    twttrTxt = Object.assign({}, twttr.txt, { isInvalidTweet: function () { return !1 }, getTweetLength: function () { return twttr.txt.getTweetLength.apply(this, arguments) - 140 } });
+    moreTweetsEnabled = true;
   }
 });
 
