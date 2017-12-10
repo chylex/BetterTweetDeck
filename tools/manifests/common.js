@@ -67,7 +67,10 @@ const common = {
     'contextMenus',
     'notifications',
   ],
-  optional_permissions: ['tabs'],
+  optional_permissions: [
+    'tabs',
+    '<all_urls>',
+  ],
   options_ui: {
     page: 'options/ui/ui.html',
     chrome_style: false,

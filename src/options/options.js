@@ -21,6 +21,12 @@ Emoji.replace_mode = 'css';
 Emoji.supports_css = true;
 Emoji.use_sheet = true;
 
+// dumb hack
+if (BHelper.getBrowser() === 'firefox') {
+  // eslint-disable-next-line
+  chrome = browser;
+}
+
 if (config.Client.debug) {
   window._BTDSetSettings = obj => BHelper.settings.set(obj);
 }
@@ -315,7 +321,7 @@ BHelper.settings.getAll((settings) => {
 
 if (chrome.permissions) {
   chrome.permissions.contains({
-    permissions: ['tabs'],
+    permissions: ['tabs', '<all_urls>'],
   }, (hasTabs) => {
     if (!hasTabs) {
       $('[data-require-permission] input').each((i, el) => $(el).prop('disabled', true));
@@ -328,7 +334,7 @@ if (chrome.permissions) {
   $('[data-ask-permissions]').on('click', (ev) => {
     ev.preventDefault();
     chrome.permissions.request({
-      permissions: ['tabs'],
+      permissions: ['tabs', '<all_urls>'],
     }, (granted) => {
       if (granted) {
         $('[data-require-permission] input').each((i, el) => $(el).prop('disabled', false));

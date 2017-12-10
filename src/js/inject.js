@@ -7,6 +7,7 @@ import Log from './util/logger';
 import UsernamesTemplates from './util/username_templates';
 import wc from './util/webcrack';
 import { giphySearch, giphyBlock } from './util/templates';
+import { getMediaParts, getMediaUrlParts } from './util/util';
 
 const GiphyClient = GiphyAPI({
   apiKey: config.Client.APIs.giphy,
@@ -34,14 +35,6 @@ if (SETTINGS.no_tco) {
     return result;
   };
 }
-
-const getMediaParts = (chirp, url) => {
-  return {
-    fileExtension: url.replace(/:[a-z]+$/, '').split('.').pop(),
-    fileName: url.split('/').pop().split('.')[0],
-    postedUser: (chirp.retweetedStatus ? chirp.retweetedStatus.user.screenName : chirp.user.screenName),
-  };
-};
 
 const getChirpFromKey = (key, colKey) => {
   const column = TD.controller.columnManager.get(colKey);
@@ -429,6 +422,11 @@ const postMessagesListeners = {
   BTDC_renderInstagramEmbed: () => {
     instgrm.Embeds.process();
   },
+  BTDC_uploadFileToComposer: (ev, data) => {
+    $(document).trigger('uiFilesAdded', {
+      files: [data.file],
+    });
+  },
   BTDC_showTDBanner: (ev, data) => {
     const { banner } = data;
     bannerID += 1;
@@ -653,13 +651,6 @@ const clipboard = new Clipboard('.btd-clipboard', {
     }
   },
 });
-
-const getMediaUrlParts = (url) => {
-  return {
-    originalExtension: url.replace(/:[a-z]+$/, '').split('.').pop(),
-    originalFile: url.split('/').pop().split('.')[0],
-  };
-};
 
 // control characters can't appear in tweets, so we can use them to pad strings out
 // source: https://shkspr.mobi/blog/2015/11/twitters-weird-control-character-handling/

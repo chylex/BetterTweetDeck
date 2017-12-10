@@ -8,6 +8,21 @@ export function $(sel, parent = document) {
 
 export const TIMESTAMP_INTERVAL = 1e3 * 8;
 
+export const getMediaParts = (chirp, url) => {
+  return {
+    fileExtension: url.replace(/:[a-z]+$/, '').split('.').pop(),
+    fileName: url.split('/').pop().split('.')[0],
+    postedUser: (chirp.retweetedStatus ? chirp.retweetedStatus.user.screenName : chirp.user.screenName),
+  };
+};
+
+export const getMediaUrlParts = (url) => {
+  return {
+    originalExtension: url.replace(/:[a-z]+$/, '').split('.').pop(),
+    originalFile: url.split('/').pop().split('.')[0],
+  };
+};
+
 export function on(name, cb) {
   listeners[name] = (ev, data) => cb(ev, data);
 }

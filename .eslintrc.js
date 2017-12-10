@@ -9,6 +9,7 @@ module.exports = {
   },
   globals: {
     chrome: false,
+    browser: false,
     instgrm: false,
     TD: false,
     Hogan: false,

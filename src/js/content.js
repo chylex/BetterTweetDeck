@@ -10,7 +10,7 @@ import * as Templates from './util/templates';
 import Emojis from './util/emojis';
 import Log from './util/logger';
 import * as BHelper from './util/browserHelper';
-import { $, TIMESTAMP_INTERVAL, on, sendEvent } from './util/util';
+import { $, TIMESTAMP_INTERVAL, on, sendEvent, getMediaUrlParts } from './util/util';
 import '../css/index.css';
 
 let SETTINGS;
@@ -520,9 +520,32 @@ on('BTDC_ready', () => {
         updateGifProgress($('[data-btd-dl-gif]')[0], details.progress);
         break;
       default:
-        document.dispatchEvent(new CustomEvent('uiComposeTweet'));
-        $('textarea.js-compose-text')[0].value = `${details.text} ${details.url}`;
-        $('textarea.js-compose-text')[0].dispatchEvent(new Event('change'));
+        if (details.isImage) {
+          fetch(details.url)
+            .then(res => res.blob())
+            .then((blob) => {
+              const url = getMediaUrlParts(details.url);
+              const options = {};
+
+              switch (url.originalExtension.toLowerCase()) {
+                case 'gif':
+                  options.type = 'image/gif';
+                  break;
+                default:
+                  break;
+              }
+
+              return new File([blob], null, options);
+            }).then((file) => {
+              sendEvent('uploadFileToComposer', {
+                file,
+              });
+            });
+        } else {
+          document.dispatchEvent(new CustomEvent('uiComposeTweet'));
+          $('textarea.js-compose-text')[0].value = `${details.text} ${details.url}`;
+          $('textarea.js-compose-text')[0].dispatchEvent(new Event('change'));
+        }
         break;
     }
   });

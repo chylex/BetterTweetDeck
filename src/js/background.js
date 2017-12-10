@@ -120,6 +120,7 @@ function contextMenuHandler(info, tab, settings) {
           action: 'share',
           text: textToShare,
           url: urlToShare,
+          isImage: info.mediaType === 'image',
         });
       });
     });
